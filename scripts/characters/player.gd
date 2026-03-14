@@ -10,7 +10,8 @@ enum ControlScheme {
 
 enum State {
 	MOVING,
-	TACKLING
+	TACKLING,
+	RECOVERING,
 }
 #endregion
 
@@ -28,6 +29,15 @@ enum State {
 var heading : Vector2 = Vector2.RIGHT
 var current_state : PlayerState = null
 var state_factory := PlayerStateFactory.new()
+#endregion
+
+#region // variable constant
+const ANIMATIONS : Dictionary = {
+	IDLE = "idle",
+	RUN = "run",
+	TACKLE = "tackle",
+	RECOVER = "recover"
+}
 #endregion
 
 func _ready() -> void :
@@ -48,9 +58,9 @@ func switch_state(state : State) -> void :
 	
 func set_movement_animation() -> void :
 	if velocity.length() > 0 :
-		animation_player.play("run")
+		animation_player.play(ANIMATIONS.RUN)
 	else :
-		animation_player.play("idle")
+		animation_player.play(ANIMATIONS.IDLE)
 	
 func set_heading() -> void :
 	if velocity.x > 0 :
