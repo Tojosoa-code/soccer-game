@@ -1,13 +1,20 @@
 class_name PlayerStateTackling
 extends PlayerState
 
-const DURATION_TACKLE := 200
-var time_start_tackle := Time.get_ticks_msec()
+const DURATION_PRIOR_RECOVERY := 200
+const GROUND_FRICTION := 250.0
+
+var is_tackle_finished := false
+var time_finish_tackle := Time.get_ticks_msec()
 
 func _enter_tree() -> void:
 	animation_player.play(player.ANIMATIONS.TACKLE)
-	time_start_tackle = Time.get_ticks_msec()
 
 func _process(_delta: float) -> void:
-	if Time.get_ticks_msec() - time_start_tackle > DURATION_TACKLE :
+	if not is_tackle_finished :
+		player.velocity = player.velocity.move_toward(Vector2.ZERO, _delta * GROUND_FRICTION)
+		if player.velocity == Vector2.ZERO :
+			is_tackle_finished = true
+			time_finish_tackle = Time.get_ticks_msec()
+	if Time.get_ticks_msec() - time_finish_tackle > DURATION_PRIOR_RECOVERY :
 		state_transition_requested.emit(player.State.RECOVERING)
