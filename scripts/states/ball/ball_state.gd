@@ -2,7 +2,7 @@ class_name BallState
 extends Node
 
 @warning_ignore("unused_signal")
-signal state_transition_requested(new_state : BallState)
+signal state_transition_requested(new_state : Ball.State)
 
 var ball : Ball = null
 var player_detection_area : Area2D = null
