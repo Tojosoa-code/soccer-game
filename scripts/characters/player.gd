@@ -12,12 +12,16 @@ enum State {
 	MOVING,
 	TACKLING,
 	RECOVERING,
+	PREPPING_SHOT,
+	SHOOTING,
 }
 #endregion
 
 #region // variable d'exportation
 @export var control_scheme : ControlScheme
 @export var speed : float
+@export var power : float
+@export var ball : Ball
 #endregion
 
 #region // variable onready
@@ -36,7 +40,9 @@ const ANIMATIONS : Dictionary = {
 	IDLE = "idle",
 	RUN = "run",
 	TACKLE = "tackle",
-	RECOVER = "recover"
+	RECOVER = "recover",
+	KICK = "kick",
+	PREP_KICK = "prep_kick",
 }
 #endregion
 
@@ -73,3 +79,6 @@ func flip_sprites() -> void :
 		player_sprite.flip_h = false
 	elif heading == Vector2.LEFT :
 		player_sprite.flip_h = true
+
+func has_ball() -> bool :
+	return ball.carrier == self
