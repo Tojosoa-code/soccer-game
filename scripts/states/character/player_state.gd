@@ -7,11 +7,13 @@ var player : Player = null
 var animation_player : AnimationPlayer = null
 var ball : Ball = null
 var state_data : PlayerStateData = null
+var teammate_detection_area : Area2D = null
 
-func setup(context_player : Player, context_ball : Ball, context_state_data : PlayerStateData, context_animation_player : AnimationPlayer) -> void :
+func setup(context_player : Player, context_teammate_detection_area : Area2D, context_ball : Ball, context_state_data : PlayerStateData, context_animation_player : AnimationPlayer) -> void :
 	player = context_player
 	state_data = context_state_data
 	ball = context_ball
+	teammate_detection_area = context_teammate_detection_area
 	animation_player = context_animation_player
 
 @warning_ignore("shadowed_variable")

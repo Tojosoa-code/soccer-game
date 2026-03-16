@@ -14,6 +14,7 @@ enum State {
 	RECOVERING,
 	PREPPING_SHOT,
 	SHOOTING,
+	PASSING,
 }
 #endregion
 
@@ -27,6 +28,7 @@ enum State {
 #region // variable onready
 @onready var animation_player: AnimationPlayer = %AnimationPlayer
 @onready var player_sprite: Sprite2D = %PlayerSprite
+@onready var teammate_detection_area: Area2D = %TeammateDetectionArea
 #endregion
 
 #region // variable standart
@@ -57,7 +59,7 @@ func switch_state(state : State, state_data : PlayerStateData = PlayerStateData.
 	if current_state != null :
 		current_state.queue_free()
 	current_state = state_factory.get_fresh_state(state)
-	current_state.setup(self, ball, state_data, animation_player)
+	current_state.setup(self, teammate_detection_area, ball, state_data, animation_player)
 	current_state.state_transition_requested.connect(switch_state.bind())
 	current_state.name = "PlayerStateMachine : " + str(state)
 	call_deferred("add_child", current_state)
