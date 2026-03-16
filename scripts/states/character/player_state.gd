@@ -1,12 +1,22 @@
 class_name PlayerState
 extends Node
 
-@warning_ignore("unused_signal")
-signal state_transition_requested(new_state : Player.State)
+signal state_transition_requested(new_state : Player.State, state_data : PlayerStateData)
 
 var player : Player = null
 var animation_player : AnimationPlayer = null
+var ball : Ball = null
+var state_data : PlayerStateData = null
 
-func setup(context_player : Player, context_animation_player : AnimationPlayer) -> void :
+func setup(context_player : Player, context_ball : Ball, context_state_data : PlayerStateData, context_animation_player : AnimationPlayer) -> void :
 	player = context_player
+	state_data = context_state_data
+	ball = context_ball
 	animation_player = context_animation_player
+
+@warning_ignore("shadowed_variable")
+func transition_state(new_state : Player.State, state_data : PlayerStateData = PlayerStateData.new()) -> void :
+	state_transition_requested.emit(new_state, state_data)
+
+func on_animation_complete() -> void :
+	pass

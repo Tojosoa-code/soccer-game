@@ -17,4 +17,4 @@ func _process(_delta: float) -> void:
 			is_tackle_finished = true
 			time_finish_tackle = Time.get_ticks_msec()
 	if Time.get_ticks_msec() - time_finish_tackle > DURATION_PRIOR_RECOVERY :
-		state_transition_requested.emit(player.State.RECOVERING)
+		transition_state(player.State.RECOVERING)
