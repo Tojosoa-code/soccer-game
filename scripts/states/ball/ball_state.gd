@@ -38,3 +38,10 @@ func process_gravity(delta : float, bouciness : float = 0.0 ) -> void :
 			if bouciness > 0 and ball.height_velocity < 0 :
 				ball.height_velocity = -ball.height_velocity * bouciness
 				ball.velocity *= bouciness
+
+func move_and_bounce(delta : float) -> void :
+	var collision := ball.move_and_collide(ball.velocity * delta)
+	
+	if collision != null :
+		ball.velocity = ball.velocity.bounce(collision.get_normal()) * ball.BOUCINESS
+		ball.switch_state(Ball.State.FREEFORM)

@@ -1,8 +1,6 @@
 class_name BallStateFreeForm
 extends BallState
 
-const BOUCINESS := 0.8
-
 func _enter_tree() -> void:
 	player_detection_area.body_entered.connect(on_player_enter.bind())
 
@@ -14,5 +12,5 @@ func _process(delta: float) -> void:
 	set_ball_animation_from_velocity()
 	var friction := ball.friction_air if ball.height > 0 else ball.friction_ground
 	ball.velocity = ball.velocity.move_toward(Vector2.ZERO, friction * delta)
-	process_gravity(delta, BOUCINESS)
-	ball.move_and_collide(ball.velocity * delta)
+	process_gravity(delta, ball.BOUCINESS)
+	move_and_bounce(delta)
