@@ -21,6 +21,7 @@ var velocity := Vector2.ZERO
 var state_factory := BallStateFactory.new()
 var carrier : Player = null
 var height := 0.0
+var height_velocity := 0.0
 
 func _ready() -> void:
 	switch_state(State.FREEFORM)
