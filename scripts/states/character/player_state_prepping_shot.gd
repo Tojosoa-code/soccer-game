@@ -11,7 +11,7 @@ func _enter_tree() -> void:
 	animation_player.play(player.ANIMATIONS.PREP_KICK)
 	player.velocity = Vector2.ZERO
 	time_start_shot = Time.get_ticks_msec()
-
+	shot_direction = player.heading
 
 func _process(delta: float) -> void:
 	shot_direction += KeyUtils.get_input_vector(player.control_scheme) * delta
