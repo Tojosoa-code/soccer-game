@@ -5,7 +5,9 @@ func _enter_tree() -> void:
 	player_detection_area.body_entered.connect(on_player_enter.bind())
 
 func on_player_enter(body : Player) -> void :
+	print("Impact balle ! Hauteur : ", ball.height)
 	ball.carrier = body
+	body.control_ball()
 	state_transition_requested.emit(Ball.State.CARRIED)
 
 func _process(delta: float) -> void:

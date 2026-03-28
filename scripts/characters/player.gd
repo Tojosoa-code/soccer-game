@@ -18,6 +18,7 @@ const ANIMATIONS : Dictionary = {
 	HEADER = "header",
 	VOLLEY_KICK = "volley_kick",
 	BICYCLE_KICK = "bicycle_kick",
+	CHEST_CONTROL = "chest_control",
 }
 #endregion
 
@@ -38,6 +39,7 @@ enum State {
 	HEADER,
 	VOLLEY_KICK,
 	BICYCLE_KICK,
+	CHEST_CONTROL,
 }
 #endregion
 
@@ -68,6 +70,7 @@ var height_velocity := 0.0
 
 #region // variable constant
 const GRAVITY := 8.0
+const BALL_CONTROL_HEIGHT_MAX := 5.0
 #endregion
 
 func _ready() -> void :
@@ -127,3 +130,7 @@ func set_control_texture() -> void :
 func on_animation_complete() -> void :
 	if current_state != null :
 		current_state.on_animation_complete()
+
+func control_ball() -> void :
+	if ball.height > BALL_CONTROL_HEIGHT_MAX :
+		switch_state(Player.State.CHEST_CONTROL)
