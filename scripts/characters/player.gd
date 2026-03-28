@@ -46,6 +46,8 @@ enum State {
 @export var speed : float
 @export var power : float
 @export var ball : Ball
+@export var own_goal : Goal
+@export var target_goal : Goal
 #endregion
 
 #region // variable onready
@@ -82,7 +84,7 @@ func switch_state(state : State, state_data : PlayerStateData = PlayerStateData.
 	if current_state != null :
 		current_state.queue_free()
 	current_state = state_factory.get_fresh_state(state)
-	current_state.setup(self, teammate_detection_area, ball, state_data, animation_player, ball_detection_area)
+	current_state.setup(self, teammate_detection_area, ball, state_data, animation_player, ball_detection_area, own_goal, target_goal)
 	current_state.state_transition_requested.connect(switch_state.bind())
 	current_state.name = "PlayerStateMachine : " + str(state)
 	call_deferred("add_child", current_state)
