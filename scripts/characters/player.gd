@@ -87,8 +87,9 @@ var height := 0.0
 var height_velocity := 0.0
 var weight_on_duty_steering := 0.0
 var current_state : PlayerState = null
+var current_ai_behavior : AIBehavior = null
 var state_factory := PlayerStateFactory.new()
-var ai_behavior : AIBehavior = AIBehavior.new()
+var ai_behavior_factory := AIBehaviorFactory.new()
 var skin_color := Player.SkinColor.MEDIUM
 var role := Player.Role.MIDFIELD
 #endregion
@@ -102,9 +103,9 @@ const COUNTRIES := ["DEFAULT", "FRANCE", "ARGENTINA", "BRAZIL", "ENGLAND", "GERM
 
 func _ready() -> void :
 	set_control_texture()
+	setup_ai_behavior()
 	switch_state(State.MOVING)
 	set_shader_properties()
-	setup_ai_behavior()
 	spawn_position = position
 	tackle_damage_emitter_area.body_entered.connect(on_tackle_player.bind())
 
@@ -131,15 +132,16 @@ func switch_state(state : State, state_data : PlayerStateData = PlayerStateData.
 	if current_state != null :
 		current_state.queue_free()
 	current_state = state_factory.get_fresh_state(state)
-	current_state.setup(self, teammate_detection_area, ball, state_data, animation_player, ball_detection_area, own_goal, target_goal, ai_behavior, tackle_damage_emitter_area)
+	current_state.setup(self, teammate_detection_area, ball, state_data, animation_player, ball_detection_area, own_goal, target_goal, current_ai_behavior, tackle_damage_emitter_area)
 	current_state.state_transition_requested.connect(switch_state.bind())
 	current_state.name = "PlayerStateMachine : " + str(state)
 	call_deferred("add_child", current_state)
 
 func setup_ai_behavior() -> void :
-	ai_behavior.setup(self, ball, opponent_detection_area)
-	ai_behavior.name = "AI Behavior"
-	add_child(ai_behavior)
+	current_ai_behavior = ai_behavior_factory.get_ai_behavior(role)
+	current_ai_behavior.setup(self, ball, opponent_detection_area)
+	current_ai_behavior.name = "AI Behavior"
+	add_child(current_ai_behavior)
 
 func set_shader_properties() -> void :
 	player_sprite.material.set_shader_parameter("skin_color", skin_color)

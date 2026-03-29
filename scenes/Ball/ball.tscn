@@ -107,3 +107,11 @@ monitorable = false
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PlayerDetectionArea"]
 shape = SubResource("CircleShape2D_4frfw")
 debug_color = Color(0, 0.6461154, 0.25188175, 0.41960785)
+
+[node name="ScoringRaycast" type="RayCast2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(0, -5)
+target_position = Vector2(80, 0)
+collision_mask = 16
+collide_with_areas = true
+collide_with_bodies = false
