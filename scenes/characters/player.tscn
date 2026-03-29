@@ -395,12 +395,12 @@ shape = SubResource("CapsuleShape2D_dyp2m")
 
 [node name="TeammateDetectionArea" type="Area2D" parent="."]
 unique_name_in_owner = true
+visible = false
 collision_layer = 0
 collision_mask = 2
 monitorable = false
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="TeammateDetectionArea"]
-visible = false
 polygon = PackedVector2Array(0, -40, 280, -150, 330, -100, 330, 100, 280, 150, 0, 40)
 
 [node name="shadowSprite" type="Sprite2D" parent="."]
@@ -463,5 +463,6 @@ sync_to_physics = false
 
 [node name="GoalieHandsCollider" type="CollisionShape2D" parent="GoalieHands"]
 unique_name_in_owner = true
+visible = false
 position = Vector2(0, -14)
 shape = SubResource("CapsuleShape2D_eojnx")
