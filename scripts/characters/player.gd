@@ -41,6 +41,19 @@ enum State {
 	BICYCLE_KICK,
 	CHEST_CONTROL,
 }
+
+enum Role {
+	GOALIE,
+	DEFENSE,
+	MIDFIELD,
+	OFFENSE,
+}
+
+enum SkinColor {
+	LIGHT,
+	MEDIUM,
+	DARK,
+}
 #endregion
 
 #region // variable d'exportation
@@ -66,6 +79,9 @@ var current_state : PlayerState = null
 var state_factory := PlayerStateFactory.new()
 var height := 0.0
 var height_velocity := 0.0
+var fullname := ""
+var skin_color := Player.SkinColor.MEDIUM
+var role := Player.Role.MIDFIELD
 #endregion
 
 #region // variable constant
@@ -82,6 +98,18 @@ func _process(delta: float) -> void:
 	set_sprite_visibility()
 	process_gravity(delta)
 	move_and_slide()
+
+func initialize(context_position : Vector2, context_ball : Ball, context_own_goal : Goal, context_target_goal : Goal, context_player_data : PlayerResource) -> void :
+	position = context_position
+	ball = context_ball
+	own_goal = context_own_goal
+	target_goal = context_target_goal
+	fullname = context_player_data.full_name
+	speed = context_player_data.speed
+	power = context_player_data.power
+	skin_color = context_player_data.skin_color
+	role = context_player_data.role
+	heading = Vector2.LEFT if target_goal.position.x < position.x else Vector2.RIGHT
 
 func switch_state(state : State, state_data : PlayerStateData = PlayerStateData.new()) -> void :
 	if current_state != null :
