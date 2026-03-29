@@ -6,10 +6,11 @@ const SHOT_DISTANCE := 150
 const SHOT_PROBABILITY := 0.3
 const TACKLE_PROBABILITY := 0.3
 const TACKLE_DISTANCE := 15.0
-const PASS_PROBABILITY := 0.05
+const PASS_PROBABILITY := 0.2
 
 func perform_ai_movement() -> void :
 	var total_steering_force := Vector2.ZERO
+
 	if player.has_ball() :
 		total_steering_force += get_carrier_steering_force()
 	elif is_ball_carried_by_teammate() :
@@ -23,6 +24,9 @@ func perform_ai_movement() -> void :
 				total_steering_force += get_ball_proximity_steering_force()
 	total_steering_force = total_steering_force.limit_length(1.0)
 	player.velocity = total_steering_force * player.speed
+	
+	if player.velocity != Vector2.ZERO :
+		teammate_detection_area.rotation = player.velocity.angle()
 
 func perform_ai_decisions() -> void :
 	if is_ball_possessed_by_oppenent() and player.position.distance_to(ball.position) < TACKLE_DISTANCE and randf() < TACKLE_PROBABILITY :
