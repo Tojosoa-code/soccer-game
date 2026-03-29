@@ -19,6 +19,7 @@ const ANIMATIONS : Dictionary = {
 	VOLLEY_KICK = "volley_kick",
 	BICYCLE_KICK = "bicycle_kick",
 	CHEST_CONTROL = "chest_control",
+	WALK = "walk",
 }
 #endregion
 
@@ -91,6 +92,7 @@ var role := Player.Role.MIDFIELD
 #region // variable constant
 const GRAVITY := 8.0
 const BALL_CONTROL_HEIGHT_MAX := 5.0
+const WALK_ANIM_THRESHOLD := 0.6
 const COUNTRIES := ["DEFAULT", "FRANCE", "ARGENTINA", "BRAZIL", "ENGLAND", "GERMANY", "ITALY", "SPAIN", "USA"]
 #endregion
 
@@ -141,10 +143,13 @@ func set_shader_properties() -> void :
 	player_sprite.material.set_shader_parameter("team_color", country_color)
 
 func set_movement_animation() -> void :
-	if velocity.length() > 0 :
-		animation_player.play(ANIMATIONS.RUN)
-	else :
+	var vel_length := velocity.length()
+	if vel_length < 1 : 
 		animation_player.play(ANIMATIONS.IDLE)
+	elif vel_length < speed * WALK_ANIM_THRESHOLD :
+		animation_player.play(ANIMATIONS.WALK)
+	else :
+		animation_player.play(ANIMATIONS.RUN)
 	
 func set_heading() -> void :
 	if velocity.x > 0 :
