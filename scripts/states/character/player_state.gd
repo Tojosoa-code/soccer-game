@@ -4,6 +4,7 @@ extends Node
 signal state_transition_requested(new_state : Player.State, state_data : PlayerStateData)
 
 var player : Player = null
+var ai_behavior : AIBehavior = null
 var animation_player : AnimationPlayer = null
 var ball : Ball = null
 var state_data : PlayerStateData = null
@@ -12,8 +13,9 @@ var ball_detection_area : Area2D = null
 var own_goal : Goal = null
 var target_goal : Goal = null
 
-func setup(context_player : Player, context_teammate_detection_area : Area2D, context_ball : Ball, context_state_data : PlayerStateData, context_animation_player : AnimationPlayer, context_ball_detection_area : Area2D, context_own_goal : Goal, context_target_goal : Goal) -> void :
+func setup(context_player : Player, context_teammate_detection_area : Area2D, context_ball : Ball, context_state_data : PlayerStateData, context_animation_player : AnimationPlayer, context_ball_detection_area : Area2D, context_own_goal : Goal, context_target_goal : Goal, context_ai_behavior : AIBehavior) -> void :
 	player = context_player
+	ai_behavior = context_ai_behavior
 	state_data = context_state_data
 	ball = context_ball
 	teammate_detection_area = context_teammate_detection_area

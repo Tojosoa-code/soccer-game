@@ -74,15 +74,18 @@ enum SkinColor {
 #endregion
 
 #region // variable standart
+var fullname : String = ""
+var country : String = ""
 var heading : Vector2 = Vector2.RIGHT
-var current_state : PlayerState = null
-var state_factory := PlayerStateFactory.new()
+var spawn_position := Vector2.ZERO
 var height := 0.0
 var height_velocity := 0.0
-var fullname := ""
+var weight_on_duty_steering := 0.0
+var current_state : PlayerState = null
+var state_factory := PlayerStateFactory.new()
+var ai_behavior : AIBehavior = AIBehavior.new()
 var skin_color := Player.SkinColor.MEDIUM
 var role := Player.Role.MIDFIELD
-var country : String = ""
 #endregion
 
 #region // variable constant
@@ -95,6 +98,8 @@ func _ready() -> void :
 	set_control_texture()
 	switch_state(State.MOVING)
 	set_shader_properties()
+	setup_ai_behavior()
+	spawn_position = position
 
 func _process(delta: float) -> void:
 	flip_sprites()
@@ -119,10 +124,15 @@ func switch_state(state : State, state_data : PlayerStateData = PlayerStateData.
 	if current_state != null :
 		current_state.queue_free()
 	current_state = state_factory.get_fresh_state(state)
-	current_state.setup(self, teammate_detection_area, ball, state_data, animation_player, ball_detection_area, own_goal, target_goal)
+	current_state.setup(self, teammate_detection_area, ball, state_data, animation_player, ball_detection_area, own_goal, target_goal, ai_behavior)
 	current_state.state_transition_requested.connect(switch_state.bind())
 	current_state.name = "PlayerStateMachine : " + str(state)
 	call_deferred("add_child", current_state)
+
+func setup_ai_behavior() -> void :
+	ai_behavior.setup(self, ball)
+	ai_behavior.name = "AI Behavior"
+	add_child(ai_behavior)
 
 func set_shader_properties() -> void :
 	player_sprite.material.set_shader_parameter("skin_color", skin_color)
