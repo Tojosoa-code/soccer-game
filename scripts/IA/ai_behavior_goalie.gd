@@ -10,7 +10,7 @@ func perform_ai_movement() -> void :
 
 func perform_ai_decisions() -> void :
 	if ball.is_headed_for_scoring_area(player.own_goal.get_scoring_area()) :
-		print("OH NOOO")
+		player.switch_state(Player.State.DIVING)
 		
 
 func get_goalie_steering_force() -> Vector2 :

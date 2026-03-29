@@ -48,8 +48,8 @@ script = ExtResource("5_ld20a")
 ball = NodePath("Ball")
 goal_home = NodePath("PitchObjects/GoalHome")
 goal_away = NodePath("PitchObjects/GoalAway")
-team_home = "FRANCE"
-team_away = "ENGLAND"
+team_home = "ITALY"
+team_away = "BRAZIL"
 
 [node name="Spawns" type="Node2D" parent="ActorsContainer"]
 unique_name_in_owner = true

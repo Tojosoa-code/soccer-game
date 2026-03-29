@@ -1,14 +1,14 @@
 class_name ActorsContainer
 extends Node2D
 
-const DURATION_WEIGHT_CACHE := 200
-const PLAYER_PREFAB := preload("res://scenes/characters/player.tscn")
-
 @export var ball : Ball
 @export var goal_home : Goal
 @export var goal_away : Goal
 @export var team_home : String
 @export var team_away : String
+
+const DURATION_WEIGHT_CACHE := 200
+const PLAYER_PREFAB := preload("res://scenes/characters/player.tscn")
 
 @onready var spawns: Node2D = %Spawns
 

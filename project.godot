@@ -99,6 +99,7 @@ p2_pass={
 2d_physics/layer_3="Ball"
 2d_physics/layer_4="InvisibleWalls"
 2d_physics/layer_5="ScoringArea"
+2d_physics/layer_6="GoalKeeperHands"
 
 [rendering]
 

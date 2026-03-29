@@ -21,6 +21,8 @@ const ANIMATIONS : Dictionary = {
 	CHEST_CONTROL = "chest_control",
 	WALK = "walk",
 	HURT = "hurt",
+	DIVE_DOWN = "dive_down",
+	DIVE_UP = "dive_up",
 }
 #endregion
 
@@ -43,6 +45,7 @@ enum State {
 	BICYCLE_KICK,
 	CHEST_CONTROL,
 	HURT,
+	DIVING,
 }
 
 enum Role {
@@ -76,6 +79,8 @@ enum SkinColor {
 @onready var ball_detection_area: Area2D = %BallDetectionArea
 @onready var tackle_damage_emitter_area: Area2D = %TackleDamageEmitterArea
 @onready var opponent_detection_area: Area2D = %OpponentDetectionArea
+@onready var permanent_damage_emitter_area: Area2D = %PermanentDamageEmitterArea
+@onready var goalie_hands_collider: CollisionShape2D = %GoalieHandsCollider
 #endregion
 
 #region // variable standart
@@ -107,7 +112,10 @@ func _ready() -> void :
 	switch_state(State.MOVING)
 	set_shader_properties()
 	spawn_position = position
+	permanent_damage_emitter_area.monitoring = role == Role.GOALIE
+	goalie_hands_collider.disabled = role != Role.GOALIE
 	tackle_damage_emitter_area.body_entered.connect(on_tackle_player.bind())
+	permanent_damage_emitter_area.body_entered.connect(on_tackle_player.bind())
 
 func _process(delta: float) -> void:
 	flip_sprites()
@@ -211,3 +219,6 @@ func get_hurt(hurt_origin : Vector2) -> void :
 func on_tackle_player(player : Player) :
 	if player != self and player.country != country and player == ball.carrier :
 		player.get_hurt(position.direction_to(player.position))
+
+func can_carry_ball() -> bool : 
+	return current_state != null and current_state.can_carry_ball()

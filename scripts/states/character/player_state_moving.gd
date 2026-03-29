@@ -32,4 +32,6 @@ func handle_human_movement() -> void :
 				transition_state(Player.State.HEADER)
 		elif player.velocity != Vector2.ZERO :
 			transition_state(Player.State.TACKLING)
-	
+
+func can_carry_ball() -> bool:
+	return player.role != Player.Role.GOALIE
