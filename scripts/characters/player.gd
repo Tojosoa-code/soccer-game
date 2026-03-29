@@ -82,16 +82,19 @@ var height_velocity := 0.0
 var fullname := ""
 var skin_color := Player.SkinColor.MEDIUM
 var role := Player.Role.MIDFIELD
+var country : String = ""
 #endregion
 
 #region // variable constant
 const GRAVITY := 8.0
 const BALL_CONTROL_HEIGHT_MAX := 5.0
+const COUNTRIES := ["DEFAULT", "FRANCE", "ARGENTINA", "BRAZIL", "ENGLAND", "GERMANY", "ITALY", "SPAIN", "USA"]
 #endregion
 
 func _ready() -> void :
 	set_control_texture()
 	switch_state(State.MOVING)
+	set_shader_properties()
 
 func _process(delta: float) -> void:
 	flip_sprites()
@@ -99,7 +102,7 @@ func _process(delta: float) -> void:
 	process_gravity(delta)
 	move_and_slide()
 
-func initialize(context_position : Vector2, context_ball : Ball, context_own_goal : Goal, context_target_goal : Goal, context_player_data : PlayerResource) -> void :
+func initialize(context_position : Vector2, context_ball : Ball, context_own_goal : Goal, context_target_goal : Goal, context_player_data : PlayerResource, context_country : String) -> void :
 	position = context_position
 	ball = context_ball
 	own_goal = context_own_goal
@@ -110,6 +113,7 @@ func initialize(context_position : Vector2, context_ball : Ball, context_own_goa
 	skin_color = context_player_data.skin_color
 	role = context_player_data.role
 	heading = Vector2.LEFT if target_goal.position.x < position.x else Vector2.RIGHT
+	country = context_country
 
 func switch_state(state : State, state_data : PlayerStateData = PlayerStateData.new()) -> void :
 	if current_state != null :
@@ -119,7 +123,13 @@ func switch_state(state : State, state_data : PlayerStateData = PlayerStateData.
 	current_state.state_transition_requested.connect(switch_state.bind())
 	current_state.name = "PlayerStateMachine : " + str(state)
 	call_deferred("add_child", current_state)
-	
+
+func set_shader_properties() -> void :
+	player_sprite.material.set_shader_parameter("skin_color", skin_color)
+	var country_color := COUNTRIES.find(country)
+	country_color = clampi(country_color, 0, COUNTRIES.size() - 1)
+	player_sprite.material.set_shader_parameter("team_color", country_color)
+
 func set_movement_animation() -> void :
 	if velocity.length() > 0 :
 		animation_player.play(ANIMATIONS.RUN)
