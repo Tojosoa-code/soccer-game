@@ -9,6 +9,7 @@ var time_finish_tackle := Time.get_ticks_msec()
 
 func _enter_tree() -> void:
 	animation_player.play(player.ANIMATIONS.TACKLE)
+	tackle_damage_emitter_area.monitoring = true
 
 func _process(_delta: float) -> void:
 	if not is_tackle_finished :
@@ -18,3 +19,6 @@ func _process(_delta: float) -> void:
 			time_finish_tackle = Time.get_ticks_msec()
 	if Time.get_ticks_msec() - time_finish_tackle > DURATION_PRIOR_RECOVERY :
 		transition_state(player.State.RECOVERING)
+
+func _exit_tree() -> void:
+	tackle_damage_emitter_area.monitoring = false

@@ -51,7 +51,7 @@ func set_on_duty_weights() -> void :
 		)
 		cpu_players.sort_custom(
 			func (p1 : Player, p2 : Player) :
-				return p1.spawn_position.distance_squared_to(ball.position) < p2.spawn_position.distance_squared_to(ball.position)
+				return p1.position.distance_squared_to(ball.position) < p2.position.distance_squared_to(ball.position)
 		)
 		
 		for i in range(cpu_players.size()) :

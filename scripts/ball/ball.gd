@@ -39,6 +39,7 @@ var height_velocity := 0.0
 #region // constant
 const BOUCINESS := 0.8
 const DISTANCE_HIGH_PASS := 130
+const TUMBLE_HEIGHT_VELOCITY := 3.0
 #endregion
 
 func _ready() -> void:
@@ -69,6 +70,12 @@ func pass_to(destination : Vector2) -> void :
 	if distance > DISTANCE_HIGH_PASS :
 		height_velocity = BallState.GRAVITY * distance / (1.8 * intensity)
 	carrier = null
+	switch_state(Ball.State.FREEFORM)
+
+func tumble(tumble_velocity : Vector2) -> void :
+	velocity = tumble_velocity
+	carrier = null
+	height_velocity = TUMBLE_HEIGHT_VELOCITY
 	switch_state(Ball.State.FREEFORM)
 
 func stop() -> void :

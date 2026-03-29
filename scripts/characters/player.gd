@@ -20,6 +20,7 @@ const ANIMATIONS : Dictionary = {
 	BICYCLE_KICK = "bicycle_kick",
 	CHEST_CONTROL = "chest_control",
 	WALK = "walk",
+	HURT = "hurt",
 }
 #endregion
 
@@ -41,6 +42,7 @@ enum State {
 	VOLLEY_KICK,
 	BICYCLE_KICK,
 	CHEST_CONTROL,
+	HURT,
 }
 
 enum Role {
@@ -72,6 +74,7 @@ enum SkinColor {
 @onready var teammate_detection_area: Area2D = %TeammateDetectionArea
 @onready var control_sprite: Sprite2D = %ControlSprite
 @onready var ball_detection_area: Area2D = %BallDetectionArea
+@onready var tackle_damage_emitter_area: Area2D = %TackleDamageEmitterArea
 #endregion
 
 #region // variable standart
@@ -102,6 +105,7 @@ func _ready() -> void :
 	set_shader_properties()
 	setup_ai_behavior()
 	spawn_position = position
+	tackle_damage_emitter_area.body_entered.connect(on_tackle_player.bind())
 
 func _process(delta: float) -> void:
 	flip_sprites()
@@ -126,7 +130,7 @@ func switch_state(state : State, state_data : PlayerStateData = PlayerStateData.
 	if current_state != null :
 		current_state.queue_free()
 	current_state = state_factory.get_fresh_state(state)
-	current_state.setup(self, teammate_detection_area, ball, state_data, animation_player, ball_detection_area, own_goal, target_goal, ai_behavior)
+	current_state.setup(self, teammate_detection_area, ball, state_data, animation_player, ball_detection_area, own_goal, target_goal, ai_behavior, tackle_damage_emitter_area)
 	current_state.state_transition_requested.connect(switch_state.bind())
 	current_state.name = "PlayerStateMachine : " + str(state)
 	call_deferred("add_child", current_state)
@@ -168,8 +172,10 @@ func process_gravity(delta : float) -> void :
 func flip_sprites() -> void :
 	if heading == Vector2.RIGHT :
 		player_sprite.flip_h = false
+		tackle_damage_emitter_area.scale.x = 1
 	elif heading == Vector2.LEFT :
 		player_sprite.flip_h = true
+		tackle_damage_emitter_area.scale.x = -1
 
 func set_sprite_visibility() -> void :
 	control_sprite.visible = has_ball() or not control_scheme == ControlScheme.CPU
@@ -193,3 +199,10 @@ func is_facing_target_goal() -> bool :
 	var dot_product := heading.dot(direction_to_target_goal)
 	
 	return dot_product > 0
+
+func get_hurt(hurt_origin : Vector2) -> void :
+	switch_state(Player.State.HURT, PlayerStateData.build().set_hurt_direction(hurt_origin))
+
+func on_tackle_player(player : Player) :
+	if player != self and player.country != country and player == ball.carrier :
+		player.get_hurt(position.direction_to(player.position))
