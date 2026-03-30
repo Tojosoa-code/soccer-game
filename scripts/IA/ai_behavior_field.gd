@@ -1,12 +1,12 @@
 class_name AIBehaviorField
 extends AIBehavior
 
-const SPREAD_ASSIST_FACTOR := 0.8
+const SPREAD_ASSIST_FACTOR := 2.5
 const SHOT_DISTANCE := 150
 const SHOT_PROBABILITY := 0.3
 const TACKLE_PROBABILITY := 0.2
 const TACKLE_DISTANCE := 15.0
-const PASS_PROBABILITY := 0.2
+const PASS_PROBABILITY := 0.15
 
 func perform_ai_movement() -> void :
 	var total_steering_force := Vector2.ZERO
