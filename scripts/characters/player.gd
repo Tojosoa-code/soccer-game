@@ -2,7 +2,7 @@ class_name Player
 extends CharacterBody2D
 
 #region // Signal
-# ✅ MODIFIÉ : Le signal n'a pas besoin de paramètre (on utilise bind dans ActorsContainer)
+@warning_ignore("unused_signal")
 signal swap_requested
 #endregion
 
@@ -28,6 +28,8 @@ const ANIMATIONS : Dictionary = {
 	HURT = "hurt",
 	DIVE_DOWN = "dive_down",
 	DIVE_UP = "dive_up",
+	CELEBRATE = "celebrate",
+	MOURN = "mourn"
 }
 #endregion
 
@@ -51,6 +53,8 @@ enum State {
 	CHEST_CONTROL,
 	HURT,
 	DIVING,
+	CELEBRATING,
+	MOURNING,
 }
 
 enum Role {
@@ -127,6 +131,7 @@ func _ready() -> void :
 	goalie_hands_collider.disabled = role != Role.GOALIE
 	tackle_damage_emitter_area.body_entered.connect(on_tackle_player.bind())
 	permanent_damage_emitter_area.body_entered.connect(on_tackle_player.bind())
+	GameEvents.team_scored.connect(on_team_scored.bind())
 
 func _process(delta: float) -> void:
 	flip_sprites()
@@ -272,3 +277,9 @@ func _draw() -> void:
 
 	var triangle := PackedVector2Array([tip, base_left, base_right])
 	draw_polygon(triangle, [triangle_color])
+
+func on_team_scored(team_scored_on : String) -> void :
+	if country == team_scored_on :
+		switch_state(Player.State.MOURNING)
+	else :
+		switch_state(Player.State.CELEBRATING)

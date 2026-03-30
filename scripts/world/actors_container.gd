@@ -20,12 +20,11 @@ var time_since_last_cache_refresh := Time.get_ticks_msec()
 func _ready() -> void:
 	squad_home = spawn_players(team_home, goal_home)
 	spawns.scale.x = -1
+	goal_home.initialize(team_home)
 	squad_away = spawn_players(team_away, goal_away)
-	
+	goal_away.initialize(team_away)
 	# Contrôle initial : joueur le plus proche du ballon pour squad_away
 	assign_control_to_closest(squad_away, Player.ControlScheme.P1)
-	
-	# ✅ FIX : Connexion au signal carrier_changed du ballon (plus fiable qu'un check dans _process)
 	ball.carrier_changed.connect(on_ball_carrier_changed)
 
 
@@ -113,8 +112,6 @@ func assign_control_to_closest(squad: Array[Player], scheme: Player.ControlSchem
 	if closest_player != null:
 		set_controlled_player(closest_player, scheme)
 
-
-# ✅ FIX : Paramètre requester passé via bind() pour éviter de chercher dans une seule équipe
 func on_player_swap_request(requester: Player) -> void:
 	if requester == null: 
 		return
@@ -145,13 +142,6 @@ func on_player_swap_request(requester: Player) -> void:
 	
 	if best_player != null:
 		set_controlled_player(best_player, requester.control_scheme)
-		# ✅ Optionnel : feedback visuel/sonore du switch réussi
-		# AudioManager.play_sfx("swap_player")
-	else:
-		# ✅ Optionnel : feedback quand aucun joueur n'est disponible
-		pass
-		# AudioManager.play_sfx("swap_failed")
-
 
 func set_on_duty_weights() -> void:
 	for squad in [squad_away, squad_home]:
