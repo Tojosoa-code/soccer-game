@@ -10,7 +10,6 @@ func _process(_delta: float) -> void:
 	player.set_movement_animation()
 	player.set_heading()
 
-
 func handle_human_movement() -> void:
 	var direction := KeyUtils.get_input_vector(player.control_scheme)
 	player.velocity = direction * player.speed
@@ -31,6 +30,8 @@ func handle_human_movement() -> void:
 		if KeyUtils.is_action_just_pressed(player.control_scheme, KeyUtils.Action.PASS):
 			# PASS = SWITCH de joueur
 			player.swap_requested.emit()
+			# ✅ Optionnel : Feedback visuel immédiat du swap request
+			# player.show_swap_indicator()  # À implémenter si besoin
 		
 		elif KeyUtils.is_action_just_pressed(player.control_scheme, KeyUtils.Action.SHOOT):
 			# SHOOT = TACKLE (ou interception aérienne si le ballon est en l'air)
@@ -45,10 +46,8 @@ func handle_human_movement() -> void:
 			elif player.velocity != Vector2.ZERO:
 				transition_state(Player.State.TACKLING)
 
-
 func can_carry_ball() -> bool:
 	return player.role != Player.Role.GOALIE
-
 
 func can_pass() -> bool:
 	return true

@@ -1,6 +1,10 @@
 class_name Ball
 extends AnimatableBody2D
 
+#region // Signal
+signal carrier_changed(old_carrier: Player, new_carrier: Player)
+#endregion
+
 #region // Dictionary
 const ANIMATIONS : Dictionary = {
 	IDLE = "idle",
@@ -32,15 +36,27 @@ enum State  {
 var current_state : BallState = null
 var velocity := Vector2.ZERO
 var state_factory := BallStateFactory.new()
-var carrier : Player = null
 var height := 0.0
 var height_velocity := 0.0
+
+# ✅ MODIFIÉ : carrier devient une propriété avec setter pour émettre le signal
+var _carrier : Player = null
+var carrier : Player:
+	get:
+		return _carrier
+	set(value):
+		if _carrier != value:
+			var old_carrier := _carrier
+			_carrier = value
+			carrier_changed.emit(old_carrier, _carrier)
 #endregion
 
 #region // constant
 const BOUCINESS := 0.8
 const DISTANCE_HIGH_PASS := 130
 const TUMBLE_HEIGHT_VELOCITY := 3.0
+const DURATION_TUMBLE_LOCK := 200
+const DURATION_PASS_LOCK := 500
 #endregion
 
 func _ready() -> void:
@@ -50,18 +66,18 @@ func _process(_delta: float) -> void:
 	ball_sprite.position = Vector2.UP * height
 	scoring_raycast.rotation = velocity.angle()
 
-func switch_state(state : Ball.State) -> void :
+func switch_state(state : Ball.State, data : BallStateData = BallStateData.new()) -> void :
 	if current_state != null :
 		current_state.queue_free()
 	current_state = state_factory.get_fresh_state(state)
-	current_state.setup(self, player_detection_area, carrier, animation_player, ball_sprite)
+	current_state.setup(self, player_detection_area, carrier, animation_player, ball_sprite, data)
 	current_state.state_transition_requested.connect(switch_state.bind())
 	current_state.name = "BallStateMachine"
 	call_deferred("add_child", current_state)
 
 func shoot(shot_velocity : Vector2) -> void :
 	velocity = shot_velocity
-	carrier = null
+	carrier = null  # ✅ Le setter va émettre le signal automatiquement
 	switch_state(Ball.State.SHOT)
 
 func pass_to(destination : Vector2) -> void :
@@ -71,14 +87,14 @@ func pass_to(destination : Vector2) -> void :
 	velocity = intensity * direction
 	if distance > DISTANCE_HIGH_PASS :
 		height_velocity = BallState.GRAVITY * distance / (1.8 * intensity)
-	carrier = null
-	switch_state(Ball.State.FREEFORM)
+	carrier = null  # ✅ Le setter va émettre le signal automatiquement
+	switch_state(Ball.State.FREEFORM, BallStateData.build().set_lock_duration(DURATION_PASS_LOCK))
 
 func tumble(tumble_velocity : Vector2) -> void :
 	velocity = tumble_velocity
-	carrier = null
+	carrier = null  # ✅ Le setter va émettre le signal automatiquement
 	height_velocity = TUMBLE_HEIGHT_VELOCITY
-	switch_state(Ball.State.FREEFORM)
+	switch_state(Ball.State.FREEFORM, BallStateData.build().set_lock_duration(DURATION_TUMBLE_LOCK))
 
 func stop() -> void :
 	velocity = Vector2.ZERO

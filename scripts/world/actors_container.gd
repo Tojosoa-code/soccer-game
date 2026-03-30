@@ -16,29 +16,50 @@ var squad_home : Array[Player] = []
 var squad_away : Array[Player] = []
 var time_since_last_cache_refresh := Time.get_ticks_msec()
 
-# Pour le switch automatique après passe
-var current_ball_carrier : Player = null
-
 
 func _ready() -> void:
 	squad_home = spawn_players(team_home, goal_home)
 	spawns.scale.x = -1
 	squad_away = spawn_players(team_away, goal_away)
 	
-	# Contrôle initial : joueur le plus proche du ballon
+	# Contrôle initial : joueur le plus proche du ballon pour squad_away
 	assign_control_to_closest(squad_away, Player.ControlScheme.P1)
+	
+	# ✅ FIX : Connexion au signal carrier_changed du ballon (plus fiable qu'un check dans _process)
+	ball.carrier_changed.connect(on_ball_carrier_changed)
 
 
 func _process(_delta: float) -> void:
 	if Time.get_ticks_msec() - time_since_last_cache_refresh > DURATION_WEIGHT_CACHE:
 		time_since_last_cache_refresh = Time.get_ticks_msec()
 		set_on_duty_weights()
+
+
+# ✅ FIX : Gestion du changement de porteur par signal (évite les race conditions)
+func on_ball_carrier_changed(_old_carrier: Player, new_carrier: Player) -> void:
+	if new_carrier == null:
+		return
 	
-	# === SWITCH AUTOMATIQUE SUR LE NOUVEAU PORTEUR (comme FIFA/PES) ===
-	if ball.carrier != current_ball_carrier:
-		current_ball_carrier = ball.carrier
-		if current_ball_carrier != null and current_ball_carrier in squad_away:
-			set_controlled_player(current_ball_carrier, Player.ControlScheme.P1)
+	# Trouver l'équipe du nouveau porteur
+	var is_squad_home := new_carrier in squad_home
+	var is_squad_away := new_carrier in squad_away
+	
+	if not (is_squad_home or is_squad_away):
+		return
+	
+	# Trouver quel control_scheme est utilisé par cette équipe
+	var squad := squad_home if is_squad_home else squad_away
+	var team_control_scheme : Player.ControlScheme = Player.ControlScheme.CPU
+	
+	# Chercher si un joueur de cette équipe est contrôlé par un humain
+	for p in squad:
+		if p.control_scheme in [Player.ControlScheme.P1, Player.ControlScheme.P2]:
+			team_control_scheme = p.control_scheme
+			break
+	
+	# Si l'équipe est contrôlée par un humain, switcher vers le nouveau porteur
+	if team_control_scheme != Player.ControlScheme.CPU:
+		set_controlled_player(new_carrier, team_control_scheme)
 
 
 func spawn_players(country : String, own_goal : Goal) -> Array[Player]:
@@ -59,8 +80,8 @@ func spawn_player(player_position : Vector2, own_goal : Goal, target_goal : Goal
 	var player : Player = PLAYER_PREFAB.instantiate()
 	player.initialize(player_position, ball, own_goal, target_goal, player_data, country)
 	
-	# === CONNEXION CORRIGÉE (signal sans paramètre) ===
-	player.swap_requested.connect(on_player_swap_request)
+	# Connexion au signal de swap (sans paramètre)
+	player.swap_requested.connect(on_player_swap_request.bind(player))
 	
 	return player
 
@@ -93,11 +114,10 @@ func assign_control_to_closest(squad: Array[Player], scheme: Player.ControlSchem
 		set_controlled_player(closest_player, scheme)
 
 
-# Bouton PASS en défense → switch manuel
-# Bouton PASS en défense → switch manuel INTELLIGENT
-func on_player_swap_request() -> void:
-	var requester := get_current_controlled_player()
-	if requester == null: return
+# ✅ FIX : Paramètre requester passé via bind() pour éviter de chercher dans une seule équipe
+func on_player_swap_request(requester: Player) -> void:
+	if requester == null: 
+		return
 	
 	var squad := squad_home if requester.country == squad_home[0].country else squad_away
 	var best_player: Player = null
@@ -125,13 +145,12 @@ func on_player_swap_request() -> void:
 	
 	if best_player != null:
 		set_controlled_player(best_player, requester.control_scheme)
-
-# Helper pour trouver le joueur actuellement contrôlé par le joueur humain
-func get_current_controlled_player() -> Player:
-	for p in squad_away:
-		if p.control_scheme == Player.ControlScheme.P1:
-			return p
-	return null
+		# ✅ Optionnel : feedback visuel/sonore du switch réussi
+		# AudioManager.play_sfx("swap_player")
+	else:
+		# ✅ Optionnel : feedback quand aucun joueur n'est disponible
+		pass
+		# AudioManager.play_sfx("swap_failed")
 
 
 func set_on_duty_weights() -> void:
@@ -140,7 +159,7 @@ func set_on_duty_weights() -> void:
 			func (p : Player):
 				return p.control_scheme == Player.ControlScheme.CPU and p.role != Player.Role.GOALIE
 		)
-		# Tri corrigé (on utilise toujours position)
+		# Tri par distance au ballon
 		cpu_players.sort_custom(
 			func (p1 : Player, p2 : Player):
 				return p1.position.distance_squared_to(ball.position) < p2.position.distance_squared_to(ball.position)

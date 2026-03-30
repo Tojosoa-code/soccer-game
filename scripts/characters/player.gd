@@ -2,7 +2,7 @@ class_name Player
 extends CharacterBody2D
 
 #region // Signal
-@warning_ignore("unused_signal")
+# ✅ MODIFIÉ : Le signal n'a pas besoin de paramètre (on utilise bind dans ActorsContainer)
 signal swap_requested
 #endregion
 
@@ -239,8 +239,15 @@ func get_pass_request(player : Player) -> void :
 	if ball.carrier == self and current_state != null and current_state.can_pass() :
 		switch_state(Player.State.PASSING, PlayerStateData.build().set_pass_target(player))
 
+# ✅ AMÉLIORÉ : Cercle directionnel visible tout le temps quand le joueur est contrôlé (pas seulement avec ballon)
 func _draw() -> void:
-	if not (control_scheme == ControlScheme.P1 and has_ball()):
+	# Afficher le cercle si :
+	# - Le joueur est contrôlé par un humain (P1 ou P2)
+	# - ET soit il a le ballon, soit il est en mouvement
+	var is_human_controlled := control_scheme in [ControlScheme.P1, ControlScheme.P2]
+	var is_moving_or_has_ball := has_ball() or velocity.length_squared() > 1.0
+	
+	if not (is_human_controlled and is_moving_or_has_ball):
 		return 
 
 	var center := Vector2(0.0, -1)
@@ -251,7 +258,7 @@ func _draw() -> void:
 
 	# Déterminer l'angle en fonction du mouvement ou du heading
 	var angle : float
-	if velocity != Vector2.ZERO:
+	if velocity.length_squared() > 1.0:
 		angle = velocity.angle()
 	else:
 		angle = heading.angle()

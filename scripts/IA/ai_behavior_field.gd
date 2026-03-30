@@ -1,7 +1,7 @@
 class_name AIBehaviorField
 extends AIBehavior
 
-const SPREAD_ASSIST_FACTOR := 2.5
+const SPREAD_ASSIST_FACTOR := 1
 const SHOT_DISTANCE := 150
 const SHOT_PROBABILITY := 0.3
 const TACKLE_PROBABILITY := 0.2
