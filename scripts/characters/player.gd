@@ -222,3 +222,7 @@ func on_tackle_player(player : Player) :
 
 func can_carry_ball() -> bool : 
 	return current_state != null and current_state.can_carry_ball()
+
+func get_pass_request(player : Player) -> void :
+	if ball.carrier == self and current_state != null and current_state.can_pass() :
+		switch_state(Player.State.PASSING, PlayerStateData.build().set_pass_target(player))
