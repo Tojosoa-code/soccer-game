@@ -4,8 +4,6 @@ extends Node2D
 @export var ball : Ball
 @export var goal_home : Goal
 @export var goal_away : Goal
-@export var team_home : String
-@export var team_away : String
 
 const DURATION_WEIGHT_CACHE := 200
 const PLAYER_PREFAB := preload("res://scenes/characters/player.tscn")
@@ -18,11 +16,11 @@ var time_since_last_cache_refresh := Time.get_ticks_msec()
 
 
 func _ready() -> void:
-	squad_home = spawn_players(team_home, goal_home)
+	squad_home = spawn_players(GameManager.countries[0], goal_home)
 	spawns.scale.x = -1
-	goal_home.initialize(team_home)
-	squad_away = spawn_players(team_away, goal_away)
-	goal_away.initialize(team_away)
+	goal_home.initialize(GameManager.countries[0])
+	squad_away = spawn_players(GameManager.countries[1], goal_away)
+	goal_away.initialize(GameManager.countries[1])
 	# Contrôle initial : joueur le plus proche du ballon pour squad_away
 	assign_control_to_closest(squad_away, Player.ControlScheme.P1)
 	ball.carrier_changed.connect(on_ball_carrier_changed)
