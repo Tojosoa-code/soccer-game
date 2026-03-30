@@ -1,6 +1,11 @@
 class_name Player
 extends CharacterBody2D
 
+#region // Signal
+@warning_ignore("unused_signal")
+signal swap_requested
+#endregion
+
 #region // Dictionnary 
 const CONTROL_SCHEME_MAP : Dictionary = {
 	ControlScheme.CPU : preload("res://assets/art/props/cpu.png"),
@@ -69,6 +74,12 @@ enum SkinColor {
 @export var ball : Ball
 @export var own_goal : Goal
 @export var target_goal : Goal
+@export var circle_radius := 10.0
+@export var border_color := Color(1, 1, 1, 0.5)
+@export var border_width := 2.0
+@export var triangle_size := 8.0
+@export var triangle_color := Color(0.15, 0.75, 1.0, 1)
+@export var direction_angle_deg := 0.0   
 #endregion
 
 #region // variable onready
@@ -122,6 +133,7 @@ func _process(delta: float) -> void:
 	set_sprite_visibility()
 	process_gravity(delta)
 	move_and_slide()
+	queue_redraw()
 
 func initialize(context_position : Vector2, context_ball : Ball, context_own_goal : Goal, context_target_goal : Goal, context_player_data : PlayerResource, context_country : String) -> void :
 	position = context_position
@@ -226,3 +238,30 @@ func can_carry_ball() -> bool :
 func get_pass_request(player : Player) -> void :
 	if ball.carrier == self and current_state != null and current_state.can_pass() :
 		switch_state(Player.State.PASSING, PlayerStateData.build().set_pass_target(player))
+
+func _draw() -> void:
+	if not (control_scheme == ControlScheme.P1 and has_ball()):
+		return 
+
+	var center := Vector2(0.0, -1)
+
+	# Cercle avec bordure
+	draw_circle(center, circle_radius, Color(0,0,0,0))
+	draw_arc(center, circle_radius, 0, TAU, 64, border_color, border_width)
+
+	# Déterminer l'angle en fonction du mouvement ou du heading
+	var angle : float
+	if velocity != Vector2.ZERO:
+		angle = velocity.angle()
+	else:
+		angle = heading.angle()
+
+	# Triangle équilatéral sur le bord du cercle
+	var base_center := center + Vector2(cos(angle), sin(angle)) * circle_radius
+	var tip := center + Vector2(cos(angle), sin(angle)) * (circle_radius + triangle_size)
+	var offset := triangle_size * 0.6
+	var base_left := base_center + Vector2(cos(angle + PI/2), sin(angle + PI/2)) * offset
+	var base_right := base_center + Vector2(cos(angle - PI/2), sin(angle - PI/2)) * offset
+
+	var triangle := PackedVector2Array([tip, base_left, base_right])
+	draw_polygon(triangle, [triangle_color])
